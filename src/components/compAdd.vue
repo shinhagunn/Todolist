@@ -33,35 +33,13 @@ export default class compAdd extends Vue {
     }
   
     handleAddTask() : void {
-        let taskData = [...this.taskList];
-        let newId = 1;
-
-        if(taskData.length > 0) {
-            newId = taskData[taskData.length - 1].id + 1;
-        }
-
-        taskData.push({
-            content: this.textAddTask,
-            id: newId,
-            status: false
-        });
-
-        localStorage.setItem('task', JSON.stringify(taskData));
+        this.$emit('addData', this.textAddTask);
         this.textAddTask = '';
-        this.$emit('changeData', taskData);
     }
 
     updateTask() : void {
-        let taskData = [...this.taskList];
-        let pos = taskData.findIndex((task) => {
-            return task.id == this.idUpdate;
-        });
-
-        taskData[pos].content = this.textAddTask;
-        localStorage.setItem('task', JSON.stringify(taskData));
-
+        this.$emit('updateData', this.textAddTask);
         this.textAddTask = '';
-        this.$emit('changeData', taskData);
     }
 }
 </script>

@@ -1,8 +1,8 @@
 <template>
   <div class="box-task">
     <compHeader :taskList="taskList" :taskLength="taskLength" :taskComplete="taskComplete"/>
-    <compList :taskList="taskList" @changeData="handleChangeData" @updateData="handleUpdateData"/>
-    <compAdd :taskList="taskList" :isUpdate="isUpdate" :idUpdate="idUpdate" @changeData="handleChangeData"/>
+    <compList :taskList="taskList" @updateChangeForm="handleUpdateChangeForm" @taskComplete="handleTaskComplete" @deleteTask="handleDeleteTask"/>
+    <compAdd :taskList="taskList" :isUpdate="isUpdate" :idUpdate="idUpdate" @addData="handleAddData" @updateData="handleUpdateData"/>
   </div>
 </template>
 
@@ -22,12 +22,12 @@ import {taskData} from '../taskData';
 })
 export default class Home extends Vue {
     taskList = this.handleTaskList;
-    taskComplete = this.handleTaskComplete;
+    taskComplete = this.getTaskComplete;
     taskLength = this.taskList.length;
     idUpdate = -1;
     isUpdate = false;
 
-    get handleTaskComplete() : number{
+    get getTaskComplete() : number{
       const taskData = [...this.taskList];
       let result = 0;
       taskData.forEach(task => {
@@ -41,17 +41,52 @@ export default class Home extends Vue {
         return (result != null)? JSON.parse(result): [];
     }
 
-    handleChangeData(taskData : taskData[]) : void{
-      this.taskList = [...taskData];
+    handleDeleteTask(id : number) : void {
+      this.taskList.splice(this.getPosById(id), 1);
+
+      localStorage.setItem('task', JSON.stringify(this.taskList));
       this.taskLength = this.taskList.length;
-      this.idUpdate = -1;
-      this.isUpdate = false;
-      this.taskComplete = this.handleTaskComplete;
+      this.taskComplete = this.getTaskComplete;
     }
 
-    handleUpdateData(dataId: number) : void{
-      this.idUpdate = dataId;
+    handleAddData(text : string) : void {
+      let newId = (this.taskList.length > 0) ? (this.taskList[this.taskList.length - 1].id + 1) : 1;
+
+      this.taskList.push({
+          content: text,
+          id: newId,
+          status: false
+      });
+
+      localStorage.setItem('task', JSON.stringify(this.taskList));
+      this.taskLength = this.taskList.length;
+    }
+
+    handleUpdateData(text: string) : void{
+      this.taskList[this.getPosById(this.idUpdate)].content = text;
+      localStorage.setItem('task', JSON.stringify(this.taskList));
+
+      this.idUpdate = -1;
+      this.isUpdate = false;
+    }
+
+    handleUpdateChangeForm(id : number) : void{
+      this.idUpdate = id;
       this.isUpdate = true;
+    }
+
+    handleTaskComplete(id : number) : void {
+      this.taskList[this.getPosById(id)].status = !this.taskList[this.getPosById(id)].status;
+      localStorage.setItem('task', JSON.stringify(this.taskList));
+      this.taskComplete = this.getTaskComplete;
+    }
+
+    getPosById(id : number) : number {
+      let pos = this.taskList.findIndex(task => {
+        return task.id == id;
+      });
+
+      return pos;
     }
 }
 </script>

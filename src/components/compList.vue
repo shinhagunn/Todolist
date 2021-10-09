@@ -24,31 +24,15 @@ export default class compList extends Vue {
     @Prop() private taskList!: taskData[];
     
     handleDeleteTask(id : number) : void {
-        let taskData = [...this.taskList];
-        
-        let pos = taskData.findIndex((task : {id: number, content: string}) => {
-        return task.id == id;
-        });
-        taskData.splice(pos, 1);
-
-        localStorage.setItem('task', JSON.stringify(taskData));
-        this.$emit('changeData', taskData);
+        this.$emit('deleteTask', id);
     }
 
     handleUpdateTask(id : number) : void {
-        this.$emit('updateData', id);
+        this.$emit('updateChangeForm', id);
     }
 
     handleCheckBoxTask(id : number) : void{
-        let taskData = [...this.taskList];
-        let pos = taskData.findIndex(task => {
-            return task.id == id;
-        });
-
-        taskData[pos].status = !taskData[pos].status;
-        localStorage.setItem('task', JSON.stringify(taskData));
-
-        this.$emit('changeData', taskData);
+        this.$emit('taskComplete', id);
     }
 }
 </script>
